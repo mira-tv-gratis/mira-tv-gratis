@@ -1,7 +1,7 @@
 #EXTM3U
 
 #EXTINF:-1 tvg-id="America.pe" tvg-logo="https://i.imgur.com/vHAs8Xf.png",América TV
-https://d264m92f15pueo.cloudfront.net/out/v1/9924f0c406834f378036214300305a2e/index.m3u8
+https://pe-p1-p-e-xm1.cdn.mdstrm.com/live-stream-secure/6099b04d9418ac082441dd74/publish/media_1000.m3u8?aid=5b8ea6f89ff52d0770a144c4&uid=F4CBlBr9zi2PuhgEPh34Da2wkzu2kS0H&sid=nMTBSOSRX0TonxRF2ekzQ0zIdbOPR7xH&pid=MTuKA6ObYsNNzFTIVMAL8tdzmU8e7eXj&pid_dvr=vb8z0l04eiCyCeIS39anqKldLdxn5NRk&ref=https%3A%2F%2Ftvgo.americatv.com.pe%2F&without_cookies=false&listenerid=&dnt=true&access_token=Zon7TYEes2RMJH1zsxkfXOO9BClrhtJlApNXsyMWCRytnz4dNEzRccpESfGEWBrqgCkugYvzeI5&es=pe-p1-p-e-xm1.cdn.mdstrm.com&ote=1771627665882&ot=OVZm2twuKTZC4MbeZoyHxw&proto=https&pz=us&CMCD=cid%3D%226099b04d9418ac082441dd74%22%2Cmtp%3D70900%2Cot%3Dm%2Csf%3Dh%2Csid%3D%22MTuKA6ObYsNNzFTIVMAL8tdzmU8e7eXj%22
 #EXTINF:-1 tvg-id="Latina.pe" tvg-logo="https://i.imgur.com/MOsWriY.png",Latina
 https://redirector.rudo.video/hls-video/567ffde3fa319fadf3419efda25619456231dfea/latina/latina.smil/playlist.m3u8
 #EXTINF:-1 tvg-id="Panamericana.pe" tvg-logo="https://i.imgur.com/7Yf3YfL.png",Panamericana TV
