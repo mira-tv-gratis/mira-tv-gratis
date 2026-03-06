@@ -1,16 +1,16 @@
 import requests
 import re
+import json
 
 def actualizar():
     try:
-        # Ahora apuntamos directo al "corazón" del video
+        # 1. Obtenemos el link nuevo
         url_embed = "https://iblups.com/embed/panamericanape"
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36'}
         
         print(f"Entrando a {url_embed}...")
         response = requests.get(url_embed, headers=headers, timeout=20)
         
-        # Buscamos el link .m3u8 dentro de este código
         patron = r'https://live-stream\.iblups\.com/live/[a-zA-Z0-9-]+\.m3u8'
         match = re.search(patron, response.text)
         
@@ -18,18 +18,28 @@ def actualizar():
             nuevo_link = match.group(0)
             print(f"✅ LINK ENCONTRADO: {nuevo_link}")
             
-            with open("lista.m3u", "r", encoding="utf-8") as f:
-                contenido = f.read()
+            # 2. Abrimos y actualizamos el canales.json
+            with open("canales.json", "r", encoding="utf-8") as f:
+                datos = json.load(f)
             
-            # Reemplazamos
-            nuevo_contenido = re.sub(r'https://live-stream\.iblups\.com/live/[a-zA-Z0-9-]+\.m3u8', nuevo_link, contenido)
+            # Buscamos el canal de "Panamericana TV" y actualizamos su stream_url
+            encontrado = False
+            for canal in datos:
+                if canal.get("nombre") == "Panamericana TV":
+                    canal["stream_url"] = nuevo_link
+                    encontrado = True
+                    break
             
-            with open("lista.m3u", "w", encoding="utf-8") as f:
-                f.write(nuevo_contenido)
-            print("🚀 ARCHIVO ACTUALIZADO CORRECTAMENTE.")
+            if encontrado:
+                # 3. Guardamos el JSON de vuelta
+                with open("canales.json", "w", encoding="utf-8") as f:
+                    json.dump(datos, f, indent=2, ensure_ascii=False)
+                print("🚀 CANALES.JSON ACTUALIZADO CORRECTAMENTE.")
+            else:
+                print("❌ No se encontró el canal 'Panamericana TV' en el JSON.")
+                
         else:
-            print("❌ Seguimos sin extraerlo. Aquí está lo que leemos del embed:")
-            print(response.text[:300]) # Veamos qué hay dentro del embed
+            print("❌ No se pudo extraer el link del embed.")
 
     except Exception as e:
         print(f"Error: {e}")
