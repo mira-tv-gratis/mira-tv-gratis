@@ -1,31 +1,31 @@
-name: Actualizador Automatico de Canales
+name: Actualizador Automatico
 
 on:
   schedule:
-    - cron: '0 */6 * * *' # Se ejecuta cada 6 horas
-  workflow_dispatch:      # Este botón te permite probarlo manualmente
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write     # Muy importante para que el bot pueda guardar los cambios
+      contents: write
     steps:
-      - name: Descargar repositorio
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Configurar Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      - name: Instalar librerias
+      - name: Install dependencies
         run: pip install requests
 
-      - name: Ejecutar script de Python
+      - name: Run Python script
         run: python actualizar_lista.py
 
-      - name: Guardar y subir cambios
+      - name: Commit and push changes
         run: |
           git config --global user.name "Bot Mira TV"
           git config --global user.email "bot@mira-tv-gratis.com"
