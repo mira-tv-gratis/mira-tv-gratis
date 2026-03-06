@@ -2,47 +2,42 @@ import requests
 import re
 import json
 
-def actualizar():
-    try:
-        # 1. Obtenemos el link nuevo
-        url_embed = "https://iblups.com/embed/panamericanape"
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36'}
-        
-        print(f"Entrando a {url_embed}...")
-        response = requests.get(url_embed, headers=headers, timeout=20)
-        
-        patron = r'https://live-stream\.iblups\.com/live/[a-zA-Z0-9-]+\.m3u8'
-        match = re.search(patron, response.text)
-        
-        if match:
-            nuevo_link = match.group(0)
-            print(f"✅ LINK ENCONTRADO: {nuevo_link}")
-            
-            # 2. Abrimos y actualizamos el canales.json
-            with open("canales.json", "r", encoding="utf-8") as f:
-                datos = json.load(f)
-            
-            # Buscamos el canal de "Panamericana TV" y actualizamos su stream_url
-            encontrado = False
-            for canal in datos:
-                if canal.get("nombre") == "Panamericana TV":
-                    canal["stream_url"] = nuevo_link
-                    encontrado = True
-                    break
-            
-            if encontrado:
-                # 3. Guardamos el JSON de vuelta
-                with open("canales.json", "w", encoding="utf-8") as f:
-                    json.dump(datos, f, indent=2, ensure_ascii=False)
-                print("🚀 CANALES.JSON ACTUALIZADO CORRECTAMENTE.")
-            else:
-                print("❌ No se encontró el canal 'Panamericana TV' en el JSON.")
-                
-        else:
-            print("❌ No se pudo extraer el link del embed.")
+HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36'}
 
-    except Exception as e:
-        print(f"Error: {e}")
+def extraer_link_de_fuente(url_fuente):
+    """Aquí ponemos la lógica para sacar el .m3u8"""
+    try:
+        response = requests.get(url_fuente, headers=HEADERS, timeout=20)
+        # Este patrón busca cualquier link que termine en .m3u8
+        patron = r'https://[^\s"\'<>]+?\.m3u8'
+        match = re.search(patron, response.text)
+        return match.group(0) if match else None
+    except:
+        return None
+
+def actualizar():
+    with open("canales.json", "r", encoding="utf-8") as f:
+        datos = json.load(f)
+
+    cambios = False
+
+    for canal in datos:
+        # Solo procesamos si el canal tiene un campo "source"
+        if "source" in canal:
+            print(f"Actualizando: {canal['nombre']}...")
+            nuevo_link = extraer_link_de_fuente(canal["source"])
+            
+            if nuevo_link and canal["stream_url"] != nuevo_link:
+                canal["stream_url"] = nuevo_link
+                cambios = True
+                print(f"  ✅ Nuevo link aplicado.")
+
+    if cambios:
+        with open("canales.json", "w", encoding="utf-8") as f:
+            json.dump(datos, f, indent=2, ensure_ascii=False)
+        print("🚀 JSON ACTUALIZADO AUTOMÁTICAMENTE.")
+    else:
+        print("✅ Todo al día.")
 
 if __name__ == "__main__":
     actualizar()
