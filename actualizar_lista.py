@@ -15,7 +15,7 @@ def actualizar():
 
             # Reemplazamos el link viejo de Panamericana por el nuevo
             # Buscamos la línea que sigue a Panamericana TV
-            patron = r"(Panamericana TV\n#FUENTE:.*\n)https?://.*\.m3u8"
+            patron = r"(Panamericana TV\n#SOURCE:.*\n)https?://.*\.m3u8"
             nuevo_contenido = re.sub(patron, rf"\1{nuevo_link}", contenido)
 
             with open("lista.m3u", "w", encoding="utf-8") as f:
