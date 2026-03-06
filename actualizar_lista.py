@@ -3,36 +3,36 @@ import re
 
 def actualizar():
     try:
-        # 1. Obtener el link nuevo de la web
         headers = {'User-Agent': 'Mozilla/5.0'}
+        print("Intentando conectar a Panamericana...")
         response = requests.get("https://panamericana.pe/tvenvivo", headers=headers, timeout=15)
-        # Regex más general para capturar el link
+        
+        # Guardamos lo que leemos para depurar
+        print(f"Respuesta recibida. Tamaño del contenido: {len(response.text)} caracteres")
+        
+        # Buscamos el link .m3u8
         match = re.search(r'https://[^\s"\'<>]*\.m3u8', response.text)
         
         if match:
             nuevo_link = match.group(0)
+            print(f"Link encontrado: {nuevo_link}")
             
-            # 2. Leer archivo y limpiar
             with open("lista.m3u", "r", encoding="utf-8") as f:
                 contenido = f.read()
 
-            # 3. Usar una Regex mucho más flexible que ignora espacios y formatos raros
-            # Busca 'Panamericana TV', luego cualquier cosa hasta #SOURCE, y luego reemplaza el link
-            patron = r'(tvg-id="Panamericana\.pe".*?\n#SOURCE:.*?\n)(https?://.*?\.m3u8)'
+            patron = r'(#SOURCE:https://panamericana\.pe/tvenvivo\n)(https?://.*\.m3u8)'
             
             if re.search(patron, contenido):
                 nuevo_contenido = re.sub(patron, rf"\1{nuevo_link}", contenido)
-                
-                # 4. Guardar
                 with open("lista.m3u", "w", encoding="utf-8") as f:
                     f.write(nuevo_contenido)
-                print(f"✅ Éxito: Link actualizado a {nuevo_link}")
+                print("✅ Lista actualizada con éxito.")
             else:
-                print("❌ No encontré la sección de Panamericana. Verifica que el tvg-id sea exacto.")
+                print("❌ No se encontró la etiqueta #SOURCE: en lista.m3u")
         else:
-            print("❌ No se encontró link .m3u8 en la web.")
+            print("❌ ERROR: No se encontró ningún link .m3u8 en la página web.")
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error detectado: {e}")
 
 if __name__ == "__main__":
     actualizar()
