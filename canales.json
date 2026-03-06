@@ -1,10 +1,11 @@
 [
   {
-    "nombre": "Antares Televisión (720p)",
-    "tvg_id": "AntaresTelevision.pe@SD",
-    "tvg_logo": "https://i.imgur.com/05gwtk2.png",
-    "group_title": "Entertainment",
-    "stream_url": "https://5c3fb01839654.streamlock.net:1963/iptvantares/liveantarestv/playlist.m3u8"
+    "nombre": "Panamericana TV",
+    "tvg_id": "Panamericana.pe",
+    "tvg_logo": "https://i.imgur.com/7Yf3YfL.png",
+    "group_title": "General",
+    "source": "https://panamericana.pe/tvenvivo",
+    "stream_url": "https://live-stream.iblups.com/live/cde7c1935927ca1cf540d70c835deb58aca3fd15.m3u8"
   },
   {
     "nombre": "Antena SUR",
@@ -28,27 +29,6 @@
     "stream_url": "https://d2qsan2ut81n2k.cloudfront.net/live/25046411-8673-4dec-8ae8-5b41984f34e1/ts:abr.m3u8"
   },
   {
-    "nombre": "ATV Sur (720p)",
-    "tvg_id": "ATVSur.pe@SD",
-    "tvg_logo": "https://i.imgur.com/LnyVa5H.png",
-    "group_title": "General",
-    "stream_url": "https://alba-pe-atv-atvsur.stream.mediatiquestream.com/index.m3u8"
-  },
-  {
-    "nombre": "ATV+ (720p)",
-    "tvg_id": "ATVPlus.pe@SD",
-    "tvg_logo": "https://i.imgur.com/fY9256H.png",
-    "group_title": "News",
-    "stream_url": "https://d2qsan2ut81n2k.cloudfront.net/live/77eece7f-8de5-4406-9f7e-7be16d81f2ce/ts:abr.m3u8"
-  },
-  {
-    "nombre": "Auténtica Televisión (720p)",
-    "tvg_id": "AutenticaTelevision.pe@SD",
-    "tvg_logo": "https://i.imgur.com/bEJK3RN.png",
-    "group_title": "General",
-    "stream_url": "https://live.obslivestream.com/autenticatvmux/index.m3u8"
-  },
-  {
     "nombre": "Bethel TV",
     "tvg_id": "BethelTV.pe@SD",
     "tvg_logo": "https://i.imgur.com/zCVh765.png",
@@ -63,11 +43,33 @@
     "stream_url": "https://sc1.wasidata.com/Bhtv/index.fmp4.m3u8"
   },
   {
-    "nombre": "Panamericana TV",
-    "tvg_id": "Panamericana.pe",
-    "tvg_logo": "https://i.imgur.com/7Yf3YfL.png",
+    "nombre": "TV Perú",
+    "tvg_id": "TVPeru.pe",
+    "tvg_logo": "https://i.imgur.com/TVPeruLogo.png",
     "group_title": "General",
-    "source": "https://panamericana.pe/tvenvivo",
-    "stream_url": "https://live-stream.iblups.com/live/cde7c1935927ca1cf540d70c835deb58aca3fd15.m3u8"
+    "source": "https://www.tvperu.gob.pe/play",
+    "stream_url": "https://cdn.tvperu.pe/live/tvperu.m3u8"
+  },
+  {
+    "nombre": "Willax TV",
+    "tvg_id": "Willax.pe",
+    "tvg_logo": "https://i.imgur.com/WillaxLogo.png",
+    "group_title": "Noticias",
+    "source": "https://willax.tv/en-vivo/",
+    "stream_url": "https://live.willax.tv/live.m3u8"
+  },
+  {
+    "nombre": "DW Español",
+    "tvg_id": "DWEspanol.de",
+    "tvg_logo": "https://i.imgur.com/DWLogo.png",
+    "group_title": "Noticias",
+    "stream_url": "https://dw-es-l.akamaized.net/hls/live/2004245/dw-es/index.m3u8"
+  },
+  {
+    "nombre": "France 24 Español",
+    "tvg_id": "France24.fr",
+    "tvg_logo": "https://i.imgur.com/F24Logo.png",
+    "group_title": "Noticias",
+    "stream_url": "https://f24-hls-es.akamaized.net/hls/live/2002511/f24-es/playlist.m3u8"
   }
 ]
