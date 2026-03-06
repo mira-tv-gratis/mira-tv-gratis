@@ -1,13 +1,30 @@
 import requests
+import re
 import json
+from urllib.parse import urlparse
 
-HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36'}
+# Headers base sin valores estáticos para evitar bloqueos
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36'
 
-def verificar_link(url):
+def extraer_link_de_fuente(url_fuente):
+    dominio = urlparse(url_fuente).netloc
+    headers = {
+        'User-Agent': USER_AGENT,
+        'Referer': f'https://{dominio}/',
+        'Origin': f'https://{dominio}'
+    }
     try:
-        # Hacemos una prueba real de conexión
-        respuesta = requests.head(url, headers=HEADERS, timeout=10)
-        return respuesta.status_code == 200
+        response = requests.get(url_fuente, headers=headers, timeout=20)
+        patron = r'https://[^\s"\'<>]+?\.m3u8'
+        match = re.search(patron, response.text)
+        return match.group(0) if match else None
+    except:
+        return None
+
+def esta_vivo(url):
+    try:
+        r = requests.head(url, headers={'User-Agent': USER_AGENT}, timeout=5)
+        return r.status_code == 200
     except:
         return False
 
@@ -15,16 +32,27 @@ def actualizar():
     with open("canales.json", "r", encoding="utf-8") as f:
         datos = json.load(f)
 
+    cambios = False
+
     for canal in datos:
-        print(f"Verificando {canal['nombre']}...", end=" ")
+        # 1. Si tiene 'source', intentamos sacar un link nuevo
+        if "source" in canal:
+            nuevo_link = extraer_link_de_fuente(canal["source"])
+            if nuevo_link and canal["stream_url"] != nuevo_link:
+                canal["stream_url"] = nuevo_link
+                cambios = True
+                print(f"✅ {canal['nombre']} actualizado.")
         
-        # Si el link no funciona, avísame YA
-        if not verificar_link(canal['stream_url']):
-            print("❌ CAÍDO")
-            # AQUÍ es donde el robot debería intentar buscar un nuevo link
-            # Pero primero, dime: ¿cuál de todos los canales es el que te da más problemas?
+        # 2. Verificamos si el stream final funciona
+        if not esta_vivo(canal["stream_url"]):
+            print(f"❌ {canal['nombre']} está CAÍDO.")
         else:
-            print("✅ OK")
+            print(f"✅ {canal['nombre']} OK.")
+
+    if cambios:
+        with open("canales.json", "w", encoding="utf-8") as f:
+            json.dump(datos, f, indent=2, ensure_ascii=False)
+        print("🚀 JSON ACTUALIZADO.")
 
 if __name__ == "__main__":
     actualizar()
