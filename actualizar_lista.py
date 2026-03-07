@@ -27,9 +27,16 @@ def buscar_en_iptv_lista(tvg_id, url_lista):
 # 3. Verificación universal (sin cambios, la que ya funcionaba)
 def esta_vivo(url):
     try:
-        r = requests.head(url, headers={'User-Agent': USER_AGENT}, timeout=5)
-        return r.status_code == 200
-    except: return False
+        # Usamos los headers de navegador, pero añadimos una excepción:
+        # Si el servidor responde un 403 (Prohibido), el script debe entender 
+        # que el canal está VIVO pero el servidor es estricto.
+        headers = {'User-Agent': USER_AGENT}
+        r = requests.get(url, headers=headers, timeout=8)
+        
+        # Consideramos "vivo" si responde 200 (OK) o 403 (Protegido pero existente)
+        return r.status_code in [200, 403]
+    except:
+        return False
 
 # 4. El motor global que recorre todo
 def actualizar():
