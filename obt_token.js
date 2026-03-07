@@ -1,40 +1,37 @@
 const puppeteer = require('puppeteer');
 
 async function sacarToken() {
-    console.error("DEBUG_JS: Iniciando puppeteer...");
     const browser = await puppeteer.launch({ 
         headless: "new",
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'] 
     });
-    
     const page = await browser.newPage();
-    
-    // Rastreo de errores en la consola del navegador
-    page.on('console', msg => console.error('BROWSER_LOG:', msg.text()));
 
-    await page.setExtraHTTPHeaders({
-        'Referer': 'https://tvgo.americatv.com.pe/',
-        'Origin': 'https://tvgo.americatv.com.pe',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36'
-    });
-
-    page.on('request', request => {
-        if (request.url().includes('mdstrm.com/live-stream-playlist')) {
-            process.stdout.write(request.url());
+    // 1. Bloqueamos publicidad y scripts de seguimiento para que la web no se bloquee
+    await page.setRequestInterception(true);
+    page.on('request', (req) => {
+        const type = req.resourceType();
+        const url = req.url();
+        // Bloquear todo lo que no sea necesario para el stream
+        if (['image', 'stylesheet', 'font', 'media'].includes(type) || 
+            url.includes('google-analytics') || url.includes('googletagservices')) {
+            req.abort();
+        } else if (url.includes('mdstrm.com/live-stream-playlist') && url.includes('access_token')) {
+            process.stdout.write(url);
             browser.close();
             process.exit(0);
+        } else {
+            req.continue();
         }
     });
 
     try {
-        console.error("DEBUG_JS: Navegando a América TV...");
-        await page.goto('https://tvgo.americatv.com.pe/canalesenvivo', { waitUntil: 'networkidle2', timeout: 50000 });
-        console.error("DEBUG_JS: Navegación completada, esperando...");
-        await new Promise(r => setTimeout(r, 20000));
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+        await page.goto('https://tvgo.americatv.com.pe/canalesenvivo', { waitUntil: 'domcontentloaded', timeout: 60000 });
+        await new Promise(r => setTimeout(r, 25000));
     } catch (e) {
-        console.error("DEBUG_JS: Error en navegación: " + e.message);
+        process.exit(1);
     }
-
     await browser.close();
     process.exit(1);
 }
