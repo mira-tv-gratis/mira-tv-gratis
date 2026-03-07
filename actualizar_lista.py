@@ -35,36 +35,29 @@ def actualizar():
     cambios = False
 
     for canal in datos:
-        # ESTO ES LO UNICO NUEVO:
-        # Si group_title está vacío, busca en la lista de iptv-org
+        # Lógica: Si el grupo está vacío, buscamos en IPTV
         if canal.get("group_title") == "":
-            try:
-                res = requests.get(canal["source"], timeout=15)
-                patron = rf'tvg-id="{canal["tvg_id"]}".*?\n(https://.*?\.m3u8)'
-                match = re.search(patron, res.text)
-                if match:
-                    canal["stream_url"] = match.group(1)
-                    cambios = True
-            except:
-                pass
-        # SI TIENE group_title, hace lo que siempre ha hecho (tu scraper original)
+            nuevo_link = buscar_en_iptv_lista(canal["tvg_id"], canal["source"])
+            if nuevo_link:
+                canal["stream_url"] = nuevo_link
+                cambios = True
+                print(f"✅ {canal['nombre']} obtenido de lista maestra.")
+        
+        # Lógica original: Si tiene grupo, usamos el scraper
         elif "source" in canal:
             nuevo_link = extraer_link_de_fuente(canal["source"])
             if nuevo_link and canal["stream_url"] != nuevo_link:
                 canal["stream_url"] = nuevo_link
                 cambios = True
-                print(f"✅ {canal['nombre']} actualizado.")
-        
-        # Verificación final de siempre
-        if not esta_vivo(canal["stream_url"]):
-            print(f"❌ {canal['nombre']} está CAÍDO.")
-        else:
+                print(f"✅ {canal['nombre']} actualizado por scraper.")
+
+        # VERIFICACIÓN: Se hace DESPUÉS de cualquier actualización
+        if esta_vivo(canal["stream_url"]):
             print(f"✅ {canal['nombre']} OK.")
+        else:
+            print(f"❌ {canal['nombre']} está CAÍDO.")
 
     if cambios:
         with open("canales.json", "w", encoding="utf-8") as f:
             json.dump(datos, f, indent=2, ensure_ascii=False)
         print("🚀 JSON ACTUALIZADO.")
-
-if __name__ == "__main__":
-    actualizar()
