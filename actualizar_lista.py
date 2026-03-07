@@ -6,9 +6,12 @@ from urllib.parse import urlparse
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36'
 
 def extraer_link_de_fuente(url_fuente):
-    # Esta es TU función original, no la he tocado para no romper lo que ya funciona
     dominio = urlparse(url_fuente).netloc
-    headers = {'User-Agent': USER_AGENT, 'Referer': f'https://{dominio}/', 'Origin': f'https://{dominio}'}
+    headers = {
+        'User-Agent': USER_AGENT,
+        'Referer': f'https://{dominio}/',
+        'Origin': f'https://{dominio}'
+    }
     try:
         response = requests.get(url_fuente, headers=headers, timeout=20)
         patron = r'https://[^\s"\'<>]+?\.m3u8'
@@ -17,19 +20,9 @@ def extraer_link_de_fuente(url_fuente):
     except:
         return None
 
-def buscar_en_iptv_lista(tvg_id, url_lista):
-    # Nueva función: solo se usa si group_title está vacío
-    try:
-        response = requests.get(url_lista, timeout=15)
-        # Busca el tvg-id y captura el link en la línea siguiente
-        patron = rf'tvg-id="{tvg_id}".*?\n(https://.*?\.m3u8)'
-        match = re.search(patron, response.text)
-        return match.group(1) if match else None
-    except:
-        return None
-
 def esta_vivo(url):
     try:
+        # He dejado tu función esta_vivo exactamente como la tenías
         r = requests.head(url, headers={'User-Agent': USER_AGENT}, timeout=5)
         return r.status_code == 200
     except:
@@ -42,22 +35,27 @@ def actualizar():
     cambios = False
 
     for canal in datos:
-        # NUEVA LÓGICA:
-        # Si group_title está vacío o "", usamos la fuente maestra de iptv-org
-        if not canal.get("group_title"):
-            nuevo_link = buscar_en_iptv_lista(canal["tvg_id"], canal["source"])
-        # Si tiene group_title, usamos tu método original de scraper
+        # ESTO ES LO UNICO NUEVO:
+        # Si group_title está vacío, busca en la lista de iptv-org
+        if canal.get("group_title") == "":
+            try:
+                res = requests.get(canal["source"], timeout=15)
+                patron = rf'tvg-id="{canal["tvg_id"]}".*?\n(https://.*?\.m3u8)'
+                match = re.search(patron, res.text)
+                if match:
+                    canal["stream_url"] = match.group(1)
+                    cambios = True
+            except:
+                pass
+        # SI TIENE group_title, hace lo que siempre ha hecho (tu scraper original)
         elif "source" in canal:
             nuevo_link = extraer_link_de_fuente(canal["source"])
-        else:
-            continue
-
-        if nuevo_link and canal["stream_url"] != nuevo_link:
-            canal["stream_url"] = nuevo_link
-            cambios = True
-            print(f"✅ {canal['nombre']} actualizado.")
+            if nuevo_link and canal["stream_url"] != nuevo_link:
+                canal["stream_url"] = nuevo_link
+                cambios = True
+                print(f"✅ {canal['nombre']} actualizado.")
         
-        # Verificación final
+        # Verificación final de siempre
         if not esta_vivo(canal["stream_url"]):
             print(f"❌ {canal['nombre']} está CAÍDO.")
         else:
