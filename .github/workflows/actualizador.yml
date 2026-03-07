@@ -19,8 +19,15 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
       - name: Install dependencies
-        run: pip install requests
+        run: |
+          pip install requests
+          npm install puppeteer
 
       - name: Run Python script
         run: python actualizar_lista.py
@@ -29,6 +36,7 @@ jobs:
         run: |
           git config --global user.name "Bot Mira TV"
           git config --global user.email "bot@mira-tv-gratis.com"
-          git add lista.m3u
-          git commit -m "Actualizacion automatica de enlaces" || exit 0
+          # Agregamos tanto el JSON como la lista m3u
+          git add canales.json lista.m3u
+          git commit -m "Actualizacion automatica de enlaces" || echo "No hay cambios para commitear"
           git push
