@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: |
           pip install requests
+          # Estas librerías son obligatorias para que Chromium funcione en Linux
+          sudo apt-get update
+          sudo apt-get install -y libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2
           npm install puppeteer
 
       - name: Run Python script
@@ -36,7 +39,6 @@ jobs:
         run: |
           git config --global user.name "Bot Mira TV"
           git config --global user.email "bot@mira-tv-gratis.com"
-          # Agregamos tanto el JSON como la lista m3u
-          git add canales.json lista.m3u
+          git add canales.json lista.m3u || true
           git commit -m "Actualizacion automatica de enlaces" || echo "No hay cambios para commitear"
           git push
