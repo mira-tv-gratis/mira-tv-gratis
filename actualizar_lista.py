@@ -20,9 +20,18 @@ def extraer_link_de_fuente(url_fuente):
     except:
         return None
 
+def buscar_en_iptv_lista(tvg_id, url_lista):
+    try:
+        response = requests.get(url_lista, timeout=15)
+        # Busca el tvg-id y captura el link en la línea siguiente
+        patron = rf'tvg-id="{tvg_id}".*?\n(https://.*?\.m3u8)'
+        match = re.search(patron, response.text)
+        return match.group(1) if match else None
+    except:
+        return None
+
 def esta_vivo(url):
     try:
-        # He dejado tu función esta_vivo exactamente como la tenías
         r = requests.head(url, headers={'User-Agent': USER_AGENT}, timeout=5)
         return r.status_code == 200
     except:
@@ -39,7 +48,7 @@ def actualizar():
         if canal.get("group_title") == "":
             print(f"🔍 Buscando {canal['nombre']} en lista maestra...")
             nuevo_link = buscar_en_iptv_lista(canal["tvg_id"], canal["source"])
-            if nuevo_link:
+            if nuevo_link and canal["stream_url"] != nuevo_link:
                 canal["stream_url"] = nuevo_link
                 cambios = True
                 print(f"✅ {canal['nombre']} obtenido de lista.")
@@ -53,7 +62,7 @@ def actualizar():
                 cambios = True
                 print(f"✅ {canal['nombre']} actualizado por scraper.")
 
-        # VERIFICACIÓN: Aquí siempre te dirá OK o CAÍDO
+        # VERIFICACIÓN
         if esta_vivo(canal["stream_url"]):
             print(f"✅ {canal['nombre']} OK.")
         else:
@@ -63,3 +72,6 @@ def actualizar():
         with open("canales.json", "w", encoding="utf-8") as f:
             json.dump(datos, f, indent=2, ensure_ascii=False)
         print("🚀 JSON ACTUALIZADO.")
+
+if __name__ == "__main__":
+    actualizar()
