@@ -27,11 +27,15 @@ def buscar_en_iptv_lista(tvg_id, url_lista):
 
 # 3. Puppeteer para América TV
 def obtener_token_america():
+    print("DEBUG: Intentando ejecutar obt_token.js...")
     try:
         resultado = subprocess.run(['node', 'obt_token.js'], capture_output=True, text=True, timeout=90)
+        print(f"DEBUG: Salida de node: {resultado.stdout}")
+        print(f"DEBUG: Error de node: {resultado.stderr}")
         link = resultado.stdout.strip()
         return link if link.startswith("http") else None
-    except:
+    except Exception as e:
+        print(f"DEBUG: Excepción en subprocess: {e}")
         return None
 
 # 4. Verificación universal
