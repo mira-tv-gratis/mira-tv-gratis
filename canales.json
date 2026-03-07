@@ -73,5 +73,13 @@
     "group_title": "",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
     "stream_url": "https://redirector.rudo.video/hls-video/plus226/latina2/latina2.smil/playlist.m3u8"
+  },
+  {
+    "nombre": "América TV",
+    "tvg_id": "AmericaTV.pe",
+    "tvg_logo": "",
+    "group_title": "Nacional",
+    "source": "https://tvgo.americatv.com.pe/canalesenvivo?utm_source=tvGO-home&utm_medium=Boton-home&utm_campaign=Fast",
+    "stream_url": ""
   }
 ]
