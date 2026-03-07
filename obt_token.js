@@ -1,34 +1,39 @@
 const puppeteer = require('puppeteer');
 
 async function sacarToken() {
-    // headless: "new" es necesario en versiones modernas de Puppeteer
     const browser = await puppeteer.launch({ 
         headless: "new",
         args: ['--no-sandbox', '--disable-setuid-sandbox'] 
     });
     const page = await browser.newPage();
 
+    // Variable para los headers dinámicos
+    const baseUrl = 'https://tvgo.americatv.com.pe';
+    await page.setExtraHTTPHeaders({
+        'Referer': `${baseUrl}/`,
+        'Origin': baseUrl,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    });
+
     page.on('request', request => {
         const url = request.url();
-        // Buscamos la URL que contiene el playlist y el token
-        if (url.includes('mdstrm.com/live-stream-playlist') && url.includes('access_token')) {
-            // IMPORTANTE: Solo imprimimos la URL, nada más.
+        // Buscamos el playlist. Si aparece, imprimimos y cerramos
+        if (url.includes('mdstrm.com') && url.includes('access_token')) {
             console.log(url); 
             process.exit(0); 
         }
     });
 
     try {
-        // Entramos a América TV
         await page.goto('https://tvgo.americatv.com.pe/canalesenvivo', { 
             waitUntil: 'networkidle2', 
             timeout: 60000 
         });
         
-        // Esperamos un tiempo prudencial para que el JS de la página actúe
-        await new Promise(r => setTimeout(r, 20000)); 
+        await new Promise(r => setTimeout(r, 15000)); 
     } catch (e) {
-        // Si hay error, no imprimimos nada para que Rust sepa que falló
+        // Log para saber qué pasó si falla
+        console.error("Error en navegación:", e);
     }
 
     await browser.close();
