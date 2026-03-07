@@ -32,11 +32,21 @@ def buscar_en_iptv_lista(tvg_id, url_lista):
 
 def esta_vivo(url):
     try:
-        r = requests.head(url, headers={'User-Agent': USER_AGENT}, timeout=5)
+        # Aquí forzamos el Referer. Si el canal es de Latina, 
+        # enviamos el dominio de Latina para que el servidor no nos bloquee.
+        dominio = urlparse(url).netloc
+        referer = f"https://{dominio}/" if "latina" in dominio else "https://www.google.com/"
+        
+        headers = {
+            'User-Agent': USER_AGENT,
+            'Referer': referer
+        }
+        
+        # Usamos GET en lugar de HEAD porque es más confiable contra bloqueos
+        r = requests.get(url, headers=headers, timeout=10, stream=True)
         return r.status_code == 200
     except:
         return False
-
 def actualizar():
     with open("canales.json", "r", encoding="utf-8") as f:
         datos = json.load(f)
