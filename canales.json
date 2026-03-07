@@ -59,17 +59,19 @@
     "stream_url": "https://live.willax.tv/live.m3u8"
   },
   {
-    "nombre": "DW Español",
-    "tvg_id": "DWEspanol.de",
-    "tvg_logo": "https://i.imgur.com/DWLogo.png",
-    "group_title": "Noticias",
-    "stream_url": "https://dw-es-l.akamaized.net/hls/live/2004245/dw-es/index.m3u8"
+    "nombre": "Latina (720p)",
+    "tvg_id": "Latina.pe@SD",
+    "tvg_logo": "https://i.imgur.com/MOsWriY.png",
+    "group_title": "General",
+    "source": "https://www.latina.pe/",
+    "stream_url": "https://redirector.rudo.video/hls-video/567ffde3fa319fadf3419efda25619456231dfea/latina/latina.smil/playlist.m3u8"
   },
   {
-    "nombre": "France 24 Español",
-    "tvg_id": "France24.fr",
-    "tvg_logo": "https://i.imgur.com/F24Logo.png",
-    "group_title": "Noticias",
-    "stream_url": "https://f24-hls-es.akamaized.net/hls/live/2002511/f24-es/playlist.m3u8"
+    "nombre": "Latina Clasicos",
+    "tvg_id": "LatinaClasicos.pe@SD",
+    "tvg_logo": "https://i.imgur.com/q0dAWyj.png",
+    "group_title": "Series",
+    "source": "https://www.latina.pe/",
+    "stream_url": "https://redirector.rudo.video/hls-video/plus226/latina2/latina2.smil/playlist.m3u8"
   }
 ]
