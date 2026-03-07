@@ -28,8 +28,8 @@ jobs:
         run: |
           pip install requests
           sudo apt-get update
-          # Corregido: libasound2 ahora es libasound2t64 en Ubuntu 24.04
-          sudo apt-get install -y libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2t64
+          # He añadido libxss1, necesaria para el proceso de renderizado
+          sudo apt-get install -y libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2t64 libxss1
           npm install puppeteer
 
       - name: Run Python script
