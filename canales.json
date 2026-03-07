@@ -63,15 +63,15 @@
     "tvg_id": "Latina.pe@SD",
     "tvg_logo": "https://i.imgur.com/MOsWriY.png",
     "group_title": "General",
-    "source": "https://www.latina.pe/",
+    "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
     "stream_url": "https://redirector.rudo.video/hls-video/567ffde3fa319fadf3419efda25619456231dfea/latina/latina.smil/playlist.m3u8"
   },
   {
     "nombre": "Latina Clasicos",
     "tvg_id": "LatinaClasicos.pe@SD",
     "tvg_logo": "https://i.imgur.com/q0dAWyj.png",
-    "group_title": "Series",
-    "source": "https://www.latina.pe/",
+    "group_title": "General",
+    "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
     "stream_url": "https://redirector.rudo.video/hls-video/plus226/latina2/latina2.smil/playlist.m3u8"
   }
 ]
