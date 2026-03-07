@@ -5,48 +5,33 @@ from urllib.parse import urlparse
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36'
 
+# 1. Scraper para los canales viejos (con group_title)
 def extraer_link_de_fuente(url_fuente):
     dominio = urlparse(url_fuente).netloc
-    headers = {
-        'User-Agent': USER_AGENT,
-        'Referer': f'https://{dominio}/',
-        'Origin': f'https://{dominio}'
-    }
+    headers = {'User-Agent': USER_AGENT, 'Referer': f'https://{dominio}/', 'Origin': f'https://{dominio}'}
     try:
         response = requests.get(url_fuente, headers=headers, timeout=20)
-        patron = r'https://[^\s"\'<>]+?\.m3u8'
-        match = re.search(patron, response.text)
+        match = re.search(r'https://[^\s"\'<>]+?\.m3u8', response.text)
         return match.group(0) if match else None
-    except:
-        return None
+    except: return None
 
+# 2. Buscador para canales nuevos (Latina, sin group_title)
 def buscar_en_iptv_lista(tvg_id, url_lista):
     try:
         response = requests.get(url_lista, timeout=15)
-        # Busca el tvg-id y captura el link en la línea siguiente
         patron = rf'tvg-id="{tvg_id}".*?\n(https://.*?\.m3u8)'
         match = re.search(patron, response.text)
         return match.group(1) if match else None
-    except:
-        return None
+    except: return None
 
+# 3. Verificación universal (sin cambios, la que ya funcionaba)
 def esta_vivo(url):
     try:
-        # Aquí forzamos el Referer. Si el canal es de Latina, 
-        # enviamos el dominio de Latina para que el servidor no nos bloquee.
-        dominio = urlparse(url).netloc
-        referer = f"https://{dominio}/" if "latina" in dominio else "https://www.google.com/"
-        
-        headers = {
-            'User-Agent': USER_AGENT,
-            'Referer': referer
-        }
-        
-        # Usamos GET en lugar de HEAD porque es más confiable contra bloqueos
-        r = requests.get(url, headers=headers, timeout=10, stream=True)
+        r = requests.head(url, headers={'User-Agent': USER_AGENT}, timeout=5)
         return r.status_code == 200
-    except:
-        return False
+    except: return False
+
+# 4. El motor global que recorre todo
 def actualizar():
     with open("canales.json", "r", encoding="utf-8") as f:
         datos = json.load(f)
@@ -54,25 +39,21 @@ def actualizar():
     cambios = False
 
     for canal in datos:
-        # Lógica: Si el grupo está vacío, buscamos en IPTV
+        # Si es Latina (vacío), usa la lista maestra
         if canal.get("group_title") == "":
-            print(f"🔍 Buscando {canal['nombre']} en lista maestra...")
             nuevo_link = buscar_en_iptv_lista(canal["tvg_id"], canal["source"])
             if nuevo_link and canal["stream_url"] != nuevo_link:
                 canal["stream_url"] = nuevo_link
                 cambios = True
-                print(f"✅ {canal['nombre']} obtenido de lista.")
         
-        # Lógica original: Si tiene grupo, usamos el scraper
+        # Si es canal viejo, usa el scraper
         elif "source" in canal:
-            print(f"🔄 Intentando scraper para {canal['nombre']}...")
             nuevo_link = extraer_link_de_fuente(canal["source"])
             if nuevo_link and canal["stream_url"] != nuevo_link:
                 canal["stream_url"] = nuevo_link
                 cambios = True
-                print(f"✅ {canal['nombre']} actualizado por scraper.")
 
-        # VERIFICACIÓN
+        # Verificación final para TODOS
         if esta_vivo(canal["stream_url"]):
             print(f"✅ {canal['nombre']} OK.")
         else:
