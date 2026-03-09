@@ -41,8 +41,10 @@ async function sacarToken() {
         // Espera de seguridad si no capturó el link rápido
         await new Promise(r => setTimeout(r, 25000)); 
 
-    } catch (e) {
-        // No imprimimos nada para no romper el flujo
+} catch (e) {
+        // CAMBIO: Esto nos dirá exactamente por qué falla
+        console.error("DEBUG: Error capturado en el catch:", e);
+        process.exit(1);
     } finally {
         if (browser) await browser.close();
         process.exit(1);
