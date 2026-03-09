@@ -36,15 +36,14 @@ async function buscar_en_iptv_lista(tvg_id, url_lista) {
 
 // 3. Puppeteer para América TV
 function obtener_token_america() {
-    console.log("DEBUG: Intentando ejecutar obt_token.js...");
     try {
-        // execSync ejecuta el comando y devuelve el stdout (salida de consola)
+        // Añadimos { stdio: 'pipe' } para capturar mejor si hay errores
         const resultado = execSync('node obt_token.js', { encoding: 'utf8', timeout: 90000 });
-        console.log(`DEBUG: Salida de node: ${resultado}`);
         const link = resultado.trim();
         return link.startsWith("http") ? link : null;
     } catch (error) {
-        console.log(`DEBUG: Excepción en subprocess: ${error.message}`);
+        // Esto te dirá en el log de GitHub POR QUÉ falló Node
+        console.log("DEBUG: Error detallado de Node:", error.stderr || error.message);
         return null;
     }
 }
