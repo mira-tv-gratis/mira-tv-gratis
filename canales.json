@@ -55,8 +55,14 @@
     "tvg_id": "Willax.pe",
     "tvg_logo": "https://i.imgur.com/WillaxLogo.png",
     "group_title": "Noticias",
-    "source": "https://willax.tv/en-vivo/",
     "stream_url": "https://live.willax.tv/live.m3u8"
+  },
+  {
+    "nombre": "América TV",
+    "tvg_id": "America.pe",
+    "tvg_logo": "https://i.imgur.com/AmericaLogo.png",
+    "group_title": "General",
+    "stream_url": "https://tvgo.americatv.com.pe/envivo"
   },
   {
     "nombre": "Latina (720p)",
