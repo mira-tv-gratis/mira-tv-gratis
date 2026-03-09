@@ -15,25 +15,16 @@ jobs:
       - name: Instalar dependencias base
         run: |
           sudo apt-get update
-          sudo apt-get install -y google-chrome-stable libnss3 libnspr4 libatk1.0-0 libcups2 libdrm2 libgbm1 libasound2t64
+          # Añadimos todas las librerías faltantes para headless
+          sudo apt-get install -y google-chrome-stable libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2t64 libxss1 libpango-1.0-0 libpangocairo-1.0-0 libxshmfence1
       
       - name: Instalar librerías de Node
-        run: |
-          # Instalamos localmente en la carpeta del proyecto
-          npm install puppeteer axios
+        run: npm install puppeteer axios
       
-      - name: Verificar instalación
-        run: |
-          # Esto nos dirá si la carpeta existe realmente
-          ls -d node_modules/puppeteer || echo "¡La carpeta no existe!"
-          
-      - name: Prueba directa de Chrome
-        run: |
-          google-chrome-stable --version
-          
-      - name: Ejecutar solo el capturador
-        # Añadimos la variable de entorno para forzar el uso del Chrome instalado
+      - name: Ejecutar capturador con modo de depuración
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
           PUPPETEER_EXECUTABLE_PATH: '/usr/bin/google-chrome-stable'
+          # DEBUG nos mostrará en la consola todo lo que hace Puppeteer
+          DEBUG: 'puppeteer:*' 
         run: node obt_token.js
