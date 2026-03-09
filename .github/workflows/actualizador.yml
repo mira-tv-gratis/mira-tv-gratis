@@ -18,24 +18,26 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          # Se eliminó la línea de cache para evitar el error de 'lock file not found'
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          # Librerías necesarias para que Chrome/Puppeteer corra en Linux (incluyendo corrección para libasound2)
-          sudo apt-get install -y libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2t64 libxss1
-          # Instalación directa de librerías
+          # Instalamos Chrome estable y las dependencias gráficas necesarias
+          sudo apt-get install -y google-chrome-stable libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2t64 libxss1
           npm install puppeteer axios
 
       - name: Run Update Script
-        # Ejecutamos con node aunque el archivo se llame .py
+        env:
+          # Le decimos a Puppeteer que NO descargue su Chrome, que use el del sistema
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+          PUPPETEER_EXECUTABLE_PATH: '/usr/bin/google-chrome-stable'
         run: node actualizar_lista.py
 
       - name: Commit and push changes
         run: |
           git config --global user.name "Bot Mira TV"
           git config --global user.email "bot@mira-tv-gratis.com"
-          git add canales.json lista.m3u || true
+          # Agregamos solo si existen
+          git add canales.json || true
           git commit -m "Actualizacion automatica de enlaces (América TV)" || echo "No hay cambios para commitear"
           git push
