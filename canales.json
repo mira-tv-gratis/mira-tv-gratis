@@ -13,7 +13,7 @@
     "tvg_logo": "https://i.imgur.com/4aHrD2l.jpeg",
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "stream_url": "https://cloudpro.servidoresdestream.com:8081/8010/index.m3u8"
+    "stream_url": "https://5c3fb01839654.streamlock.net:1963/iptvantares/liveantarestv/playlist.m3u8"
   },
   {
     "nombre": "AsiriTV (720p)",
@@ -21,7 +21,7 @@
     "tvg_logo": "https://i.imgur.com/7bGVFBa.png",
     "group_title": "Culture",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "stream_url": "https://video2.lhdserver.es/asiritv/live.m3u8"
+    "stream_url": "https://5c3fb01839654.streamlock.net:1963/iptvantares/liveantarestv/playlist.m3u8"
   },
   {
     "nombre": "ATV (720p)",
@@ -29,7 +29,7 @@
     "tvg_logo": "https://i.imgur.com/eUzYZfg.png",
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "stream_url": "https://d2qsan2ut81n2k.cloudfront.net/live/25046411-8673-4dec-8ae8-5b41984f34e1/ts:abr.m3u8"
+    "stream_url": "https://5c3fb01839654.streamlock.net:1963/iptvantares/liveantarestv/playlist.m3u8"
   },
   {
     "nombre": "Bethel TV",
@@ -37,7 +37,7 @@
     "tvg_logo": "https://i.imgur.com/zCVh765.png",
     "group_title": "Religious",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "stream_url": "https://alfa.betheltv.tv/srt/3_abr/playlist.m3u8"
+    "stream_url": "https://5c3fb01839654.streamlock.net:1963/iptvantares/liveantarestv/playlist.m3u8"
   },
   {
     "nombre": "BHTV (1080p)",
@@ -45,7 +45,7 @@
     "tvg_logo": "https://i.imgur.com/oNFOKFI.png",
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "stream_url": "https://sc1.wasidata.com/Bhtv/index.fmp4.m3u8"
+    "stream_url": "https://5c3fb01839654.streamlock.net:1963/iptvantares/liveantarestv/playlist.m3u8"
   },
   {
     "nombre": "TV Perú",
@@ -75,7 +75,7 @@
     "tvg_logo": "https://i.imgur.com/MOsWriY.png",
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "stream_url": "https://redirector.rudo.video/hls-video/567ffde3fa319fadf3419efda25619456231dfea/latina/latina.smil/playlist.m3u8"
+    "stream_url": "https://5c3fb01839654.streamlock.net:1963/iptvantares/liveantarestv/playlist.m3u8"
   },
   {
     "nombre": "Latina Clasicos",
@@ -83,6 +83,6 @@
     "tvg_logo": "https://i.imgur.com/q0dAWyj.png",
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "stream_url": "https://redirector.rudo.video/hls-video/plus226/latina2/latina2.smil/playlist.m3u8"
+    "stream_url": "https://5c3fb01839654.streamlock.net:1963/iptvantares/liveantarestv/playlist.m3u8"
   }
 ]
