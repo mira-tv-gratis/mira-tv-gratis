@@ -48,9 +48,9 @@ async function actualizar() {
             console.log(`⏩ ${canal.nombre} (Proxy).`);
         }
 
-        // 2. Verificación de salud (de todos los canales)
+        // 2. Verificación de salud (AHORA CON NOMBRE DEL CANAL)
         const vivo = await esta_vivo(canal.stream_url);
-        console.log(vivo ? `   └─ Estado: [OK]` : `   └─ Estado: [CAÍDO]`);
+        console.log(`   └─ ${canal.nombre} está: ${vivo ? "[OK]" : "[CAÍDO]"}`);
     }
 
     if (cambios) {
@@ -59,4 +59,9 @@ async function actualizar() {
     }
 }
 
-actualizar();
+actualizar().then(() => {
+    process.exit(0);
+}).catch(err => {
+    console.error(err);
+    process.exit(1);
+});
