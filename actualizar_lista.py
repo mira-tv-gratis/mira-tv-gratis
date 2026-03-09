@@ -1,19 +1,18 @@
 const fs = require('fs');
 const axios = require('axios');
-const { execSync } = require('child_process');
 
-const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36';
+const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
-// 1. Scraper para canales viejos
+// 1. Scraper para canales con página web propia
 async function extraer_link_de_fuente(url_fuente) {
-    const urlObj = new URL(url_fuente);
-    const dominio = urlObj.hostname;
-    const headers = {
-        'User-Agent': USER_AGENT,
-        'Referer': `https://${dominio}/`,
-        'Origin': `https://${dominio}`
-    };
     try {
+        const urlObj = new URL(url_fuente);
+        const dominio = urlObj.hostname;
+        const headers = {
+            'User-Agent': USER_AGENT,
+            'Referer': `https://${dominio}/`,
+            'Origin': `https://${dominio}`
+        };
         const response = await axios.get(url_fuente, { headers, timeout: 20000 });
         const match = response.data.match(/https:\/\/[^\s"\'<>]+?\.m3u8/);
         return match ? match[0] : null;
@@ -22,10 +21,11 @@ async function extraer_link_de_fuente(url_fuente) {
     }
 }
 
-// 2. Buscador para canales nuevos (Latina)
+// 2. Buscador para canales en listas IPTV (ej. Latina)
 async function buscar_en_iptv_lista(tvg_id, url_lista) {
     try {
         const response = await axios.get(url_lista, { timeout: 15000 });
+        // Ajustado para capturar el link .m3u8 asociado al tvg-id
         const patron = new RegExp(`tvg-id="${tvg_id}".*?\\n(https://.*?\\.m3u8)`, 's');
         const match = response.data.match(patron);
         return match ? match[1].trim() : null;
@@ -34,77 +34,46 @@ async function buscar_en_iptv_lista(tvg_id, url_lista) {
     }
 }
 
-// 3. Puppeteer para América TV
-function obtener_token_america() {
-    try {
-        // Añadimos { stdio: 'pipe' } para capturar mejor si hay errores
-        const resultado = execSync('node obt_token.js', { encoding: 'utf8', timeout: 90000 });
-        const link = resultado.trim();
-        return link.startsWith("http") ? link : null;
-    } catch (error) {
-        // Esto te dirá en el log de GitHub POR QUÉ falló Node
-        console.log("DEBUG: Error detallado de Node:", error.stderr || error.message);
-        return null;
-    }
-}
-
-// 4. Verificación universal
+// 3. Verificación de estado
 async function esta_vivo(url) {
     try {
         const headers = { 'User-Agent': USER_AGENT };
         const response = await axios.get(url, { headers, timeout: 8000 });
         return [200, 403].includes(response.status);
     } catch (error) {
-        // En axios, si da 403 lanza error, lo capturamos aquí
-        if (error.response && [200, 403].includes(error.response.status)) {
-            return true;
-        }
-        return false;
+        return error.response && [200, 403].includes(error.response.status);
     }
 }
 
-// 5. Motor global
+// 4. Motor global (Limpio de América TV)
 async function actualizar() {
-    const rawData = fs.readFileSync('canales.json', 'utf8');
-    let datos = JSON.parse(rawData);
+    let datos = JSON.parse(fs.readFileSync('canales.json', 'utf8'));
     let cambios = false;
 
     for (let canal of datos) {
+        // Ignoramos América TV por completo
+        if (canal.nombre === "América TV") continue;
+
         let nuevo_link = null;
 
-        // A. América TV (Puppeteer)
-        if (canal["nombre"] === "América TV") {
-            nuevo_link = obtener_token_america();
-            if (nuevo_link && canal["stream_url"] !== nuevo_link) {
-                canal["stream_url"] = nuevo_link;
-                cambios = true;
-                console.log("✅ América TV actualizado.");
-            }
-        }
-        // B. Latina (Lista maestra)
-        else if (canal["group_title"] === "") {
-            nuevo_link = await buscar_en_iptv_lista(canal["tvg_id"], canal["source"]);
-            if (nuevo_link && canal["stream_url"] !== nuevo_link) {
-                canal["stream_url"] = nuevo_link;
-                cambios = true;
-            }
-        }
-        // C. Canales viejos (Scraper)
-        else if (canal["source"]) {
-            nuevo_link = await extraer_link_de_fuente(canal["source"]);
-            if (nuevo_link && canal["stream_url"] !== nuevo_link) {
-                canal["stream_url"] = nuevo_link;
-                cambios = true;
-            }
+        // A. Canales sin grupo (Listas IPTV)
+        if (canal.group_title === "" && canal.source) {
+            nuevo_link = await buscar_en_iptv_lista(canal.tvg_id, canal.source);
+        } 
+        // B. Canales generales con fuente web
+        else if (canal.source) {
+            nuevo_link = await extraer_link_de_fuente(canal.source);
         }
 
-        // Verificación final
-        const vivo = await esta_vivo(canal["stream_url"]);
-        if (vivo) {
-            console.log(`✅ ${canal["nombre"]} OK.`);
-        } else {
-            console.log(`❌ ${canal["nombre"]} está CAÍDO.`);
+        if (nuevo_link && canal.stream_url !== nuevo_link) {
+            canal.stream_url = nuevo_link;
+            cambios = true;
+            console.log(`✅ ${canal.nombre} actualizado.`);
         }
+
+        // Verificación
+        const vivo = await esta_vivo(canal.stream_url);
+        console.log(vivo ? `✅ ${canal.nombre} OK.` : `❌ ${canal.nombre} está CAÍDO.`);
     }
 
     if (cambios) {
@@ -113,5 +82,4 @@ async function actualizar() {
     }
 }
 
-// Ejecución
 actualizar();
