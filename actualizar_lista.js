@@ -13,24 +13,7 @@ async function extraer_link_generico(url_fuente) {
     } catch (e) { return null; }
 }
 
-// 2. Scraper EXCLUSIVO para Willax
-async function extraer_link_willax(url_fuente) {
-    try {
-        const headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-            'Referer': 'https://willax.pe/en-vivo/',
-            'Origin': 'https://willax.pe',
-            'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'
-        };
-        const response = await axios.get(url_fuente, { headers, timeout: 20000 });
-        const match = response.data.match(/https:\/\/[^\s"\'<>]+?\.m3u8/);
-        return match ? match[0] : null;
-    } catch (e) { 
-        return null; 
-    }
-}
-// 3. Buscador para listas IPTV
+// 2. Buscador para listas IPTV
 async function buscar_en_iptv_lista(tvg_id, url_lista) {
     try {
         const response = await axios.get(url_lista, { timeout: 15000 });
@@ -40,7 +23,7 @@ async function buscar_en_iptv_lista(tvg_id, url_lista) {
     } catch (e) { return null; }
 }
 
-// 4. Verificación de estado
+// 3. Verificación de estado
 async function esta_vivo(url) {
     try {
         const headers = { 'User-Agent': USER_AGENT };
@@ -51,24 +34,24 @@ async function esta_vivo(url) {
     }
 }
 
-// 5. Motor global
+// 4. Motor global
 async function actualizar() {
     let datos = JSON.parse(fs.readFileSync('canales.json', 'utf8'));
     let cambios = false;
 
     for (let canal of datos) {
-        if (canal.nombre === "América TV") continue;
+        // CRITERIO ÚNICO: Si no hay 'source', el bot no toca el canal.
+        if (!canal.source) {
+            console.log(`⏩ ${canal.nombre} sin 'source'. Saltando.`);
+            continue; 
+        }
 
         let nuevo_link = null;
 
-        // Lógica separada por tipo de canal
-        if (canal.nombre === "Willax TV") {
-            nuevo_link = await extraer_link_willax(canal.source);
-        } 
-        else if (canal.group_title === "" && canal.source) {
+        // Lógica basada en el tipo de fuente
+        if (canal.group_title === "" && canal.source.includes("iptv-org")) {
             nuevo_link = await buscar_en_iptv_lista(canal.tvg_id, canal.source);
-        }
-        else if (canal.source) {
+        } else if (canal.source) {
             nuevo_link = await extraer_link_generico(canal.source);
         }
 
@@ -78,7 +61,7 @@ async function actualizar() {
             console.log(`✅ ${canal.nombre} actualizado.`);
         }
 
-        // Verificación de estado final
+        // Verificación de estado
         const vivo = await esta_vivo(canal.stream_url);
         console.log(vivo ? `✅ ${canal.nombre} OK.` : `❌ ${canal.nombre} está CAÍDO.`);
     }
