@@ -22,11 +22,21 @@ async function extraer_link_willax(url_fuente) {
             'Origin': 'https://willax.pe'
         };
         const response = await axios.get(url_fuente, { headers, timeout: 20000 });
+        
+        // --- DIAGNÓSTICO ---
+        // Si el match falla, imprimimos un poco del contenido para ver qué está pasando
         const match = response.data.match(/https:\/\/[^\s"\'<>]+?\.m3u8/);
+        if (!match) {
+            console.log("DEBUG: No se encontró .m3u8. Primeros 500 caracteres de la respuesta:");
+            console.log(response.data.substring(0, 500));
+        }
+        
         return match ? match[0] : null;
-    } catch (e) { return null; }
+    } catch (e) { 
+        console.log("DEBUG: Error al conectar con Willax:", e.message);
+        return null; 
+    }
 }
-
 // 3. Buscador para listas IPTV
 async function buscar_en_iptv_lista(tvg_id, url_lista) {
     try {
