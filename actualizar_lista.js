@@ -5,6 +5,7 @@ const IPTV_ORG_URL = "https://iptv-org.github.io/iptv/countries/pe.m3u";
 
 // Función de verificación de salud (Ping)
 async function esta_vivo(url) {
+    if (!url) return true;
     try {
         const response = await axios.head(url, { timeout: 5000 });
         return response.status === 200 || response.status === 403;
@@ -34,7 +35,11 @@ async function actualizar() {
 
     for (let canal of datos) {
         // 1. Actualización (solo si tiene source)
-        if (canal.source) {
+        if (canal.stream_url === "" || canal.stream_url.includes("envivo")) {
+            // Es un canal de América o un canal que el Proxy debe manejar
+            console.log(`⏩ ${canal.nombre}: Saltando actualización (Manejado por Proxy/Token).`);
+        } 
+        else if (canal.source) {
             let nuevo_link = (canal.source === IPTV_ORG_URL) ? 
                              await buscar_en_iptv_lista(canal.tvg_id) : 
                              await extraer_link_generico(canal.source);
@@ -49,8 +54,12 @@ async function actualizar() {
         }
 
         // 2. Verificación de salud (AHORA CON NOMBRE DEL CANAL)
-        const vivo = await esta_vivo(canal.stream_url);
-        console.log(`   └─ ${canal.nombre} está: ${vivo ? "[OK]" : "[CAÍDO]"}`);
+        if (canal.stream_url === "") {
+            console.log(`   └─ ${canal.nombre} está: [MODO DINÁMICO]`);
+        } else {
+            const vivo = await esta_vivo(canal.stream_url);
+            console.log(`   └─ ${canal.nombre} está: ${vivo ? "[OK]" : "[CAÍDO]"}`);
+        }
     }
 
     if (cambios) {
