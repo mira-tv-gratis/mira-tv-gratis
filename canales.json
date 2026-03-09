@@ -67,7 +67,7 @@
     "tvg_id": "America.pe",
     "tvg_logo": "https://i.imgur.com/AmericaLogo.png",
     "group_title": "General",
-    "stream_url": "https://tvgo.americatv.com.pe/envivo"
+    "stream_url": "http://127.0.0.1:7878/america"
   },
   {
     "nombre": "Latina (720p)",
