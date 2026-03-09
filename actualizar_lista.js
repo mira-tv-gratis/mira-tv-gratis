@@ -17,23 +17,16 @@ async function extraer_link_generico(url_fuente) {
 async function extraer_link_willax(url_fuente) {
     try {
         const headers = {
-            'User-Agent': USER_AGENT,
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
             'Referer': 'https://willax.pe/en-vivo/',
-            'Origin': 'https://willax.pe'
+            'Origin': 'https://willax.pe',
+            'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'
         };
         const response = await axios.get(url_fuente, { headers, timeout: 20000 });
-        
-        // --- DIAGNÓSTICO ---
-        // Si el match falla, imprimimos un poco del contenido para ver qué está pasando
         const match = response.data.match(/https:\/\/[^\s"\'<>]+?\.m3u8/);
-        if (!match) {
-            console.log("DEBUG: No se encontró .m3u8. Primeros 500 caracteres de la respuesta:");
-            console.log(response.data.substring(0, 500));
-        }
-        
         return match ? match[0] : null;
     } catch (e) { 
-        console.log("DEBUG: Error al conectar con Willax:", e.message);
         return null; 
     }
 }
