@@ -6,7 +6,6 @@ const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 // 1. Scraper para canales generales
 async function extraer_link_generico(url_fuente) {
     try {
-        const urlObj = new URL(url_fuente);
         const headers = { 'User-Agent': USER_AGENT };
         const response = await axios.get(url_fuente, { headers, timeout: 20000 });
         const match = response.data.match(/https:\/\/[^\s"\'<>]+?\.m3u8/);
@@ -14,7 +13,7 @@ async function extraer_link_generico(url_fuente) {
     } catch (e) { return null; }
 }
 
-// 2. Scraper EXCLUSIVO para Willax (sin mezclar nada)
+// 2. Scraper EXCLUSIVO para Willax
 async function extraer_link_willax(url_fuente) {
     try {
         const headers = {
@@ -38,6 +37,18 @@ async function buscar_en_iptv_lista(tvg_id, url_lista) {
     } catch (e) { return null; }
 }
 
+// 4. Verificación de estado
+async function esta_vivo(url) {
+    try {
+        const headers = { 'User-Agent': USER_AGENT };
+        const response = await axios.get(url, { headers, timeout: 8000 });
+        return [200, 403].includes(response.status);
+    } catch (error) {
+        return error.response && [200, 403].includes(error.response.status);
+    }
+}
+
+// 5. Motor global
 async function actualizar() {
     let datos = JSON.parse(fs.readFileSync('canales.json', 'utf8'));
     let cambios = false;
@@ -47,7 +58,7 @@ async function actualizar() {
 
         let nuevo_link = null;
 
-        // SEPARACIÓN CLARA: Cada canal tiene su propio bloque
+        // Lógica separada por tipo de canal
         if (canal.nombre === "Willax TV") {
             nuevo_link = await extraer_link_willax(canal.source);
         } 
@@ -63,6 +74,10 @@ async function actualizar() {
             cambios = true;
             console.log(`✅ ${canal.nombre} actualizado.`);
         }
+
+        // Verificación de estado final
+        const vivo = await esta_vivo(canal.stream_url);
+        console.log(vivo ? `✅ ${canal.nombre} OK.` : `❌ ${canal.nombre} está CAÍDO.`);
     }
 
     if (cambios) {
@@ -71,4 +86,9 @@ async function actualizar() {
     }
 }
 
-actualizar();
+actualizar().then(() => {
+    process.exit(0);
+}).catch(err => {
+    console.error(err);
+    process.exit(1);
+});
