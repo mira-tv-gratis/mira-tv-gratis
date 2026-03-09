@@ -2,7 +2,7 @@ name: Actualizador Automatico
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 */6 * * *' # Cada 6 horas
   workflow_dispatch:
 
 jobs:
@@ -20,24 +20,17 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          # Instalamos Chrome estable y las dependencias gráficas necesarias
-          sudo apt-get install -y google-chrome-stable libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2t64 libxss1
-          npm install puppeteer axios
+        run: npm install axios
 
       - name: Run Update Script
-        env:
-          # Le decimos a Puppeteer que NO descargue su Chrome, que use el del sistema
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-          PUPPETEER_EXECUTABLE_PATH: '/usr/bin/google-chrome-stable'
-        run: node actualizar_lista.py
+        # Ahora ejecutamos el archivo JS que limpiamos anteriormente
+        run: node actualizar_lista.js
 
       - name: Commit and push changes
         run: |
           git config --global user.name "Bot Mira TV"
           git config --global user.email "bot@mira-tv-gratis.com"
-          # Agregamos solo si existen
-          git add canales.json || true
-          git commit -m "Actualizacion automatica de enlaces (América TV)" || echo "No hay cambios para commitear"
+          git add canales.json
+          # Solo hace commit si hay cambios reales en el archivo
+          git commit -m "Actualizacion automatica de enlaces" || echo "No hay cambios para commitear"
           git push
