@@ -1,92 +1,118 @@
-import requests
-import re
-import json
-import subprocess
-from urllib.parse import urlparse
+const fs = require('fs');
+const axios = require('axios');
+const { execSync } = require('child_process');
 
-USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36'
+const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36';
 
-# 1. Scraper para canales viejos
-def extraer_link_de_fuente(url_fuente):
-    dominio = urlparse(url_fuente).netloc
-    headers = {'User-Agent': USER_AGENT, 'Referer': f'https://{dominio}/', 'Origin': f'https://{dominio}'}
-    try:
-        response = requests.get(url_fuente, headers=headers, timeout=20)
-        match = re.search(r'https://[^\s"\'<>]+?\.m3u8', response.text)
-        return match.group(0) if match else None
-    except: return None
+// 1. Scraper para canales viejos
+async function extraer_link_de_fuente(url_fuente) {
+    const urlObj = new URL(url_fuente);
+    const dominio = urlObj.hostname;
+    const headers = {
+        'User-Agent': USER_AGENT,
+        'Referer': `https://${dominio}/`,
+        'Origin': `https://${dominio}`
+    };
+    try {
+        const response = await axios.get(url_fuente, { headers, timeout: 20000 });
+        const match = response.data.match(/https:\/\/[^\s"\'<>]+?\.m3u8/);
+        return match ? match[0] : null;
+    } catch (error) {
+        return null;
+    }
+}
 
-# 2. Buscador para canales nuevos (Latina)
-def buscar_en_iptv_lista(tvg_id, url_lista):
-    try:
-        response = requests.get(url_lista, timeout=15)
-        patron = rf'tvg-id="{tvg_id}".*?\n(https://.*?\.m3u8)'
-        match = re.search(patron, response.text)
-        return match.group(1) if match else None
-    except: return None
+// 2. Buscador para canales nuevos (Latina)
+async function buscar_en_iptv_lista(tvg_id, url_lista) {
+    try {
+        const response = await axios.get(url_lista, { timeout: 15000 });
+        const patron = new RegExp(`tvg-id="${tvg_id}".*?\\n(https://.*?\\.m3u8)`, 's');
+        const match = response.data.match(patron);
+        return match ? match[1].trim() : null;
+    } catch (error) {
+        return null;
+    }
+}
 
-# 3. Puppeteer para América TV
-def obtener_token_america():
-    print("DEBUG: Intentando ejecutar obt_token.js...")
-    try:
-        resultado = subprocess.run(['node', 'obt_token.js'], capture_output=True, text=True, timeout=90)
-        print(f"DEBUG: Salida de node: {resultado.stdout}")
-        print(f"DEBUG: Error de node: {resultado.stderr}")
-        link = resultado.stdout.strip()
-        return link if link.startswith("http") else None
-    except Exception as e:
-        print(f"DEBUG: Excepción en subprocess: {e}")
-        return None
+// 3. Puppeteer para América TV
+function obtener_token_america() {
+    console.log("DEBUG: Intentando ejecutar obt_token.js...");
+    try {
+        // execSync ejecuta el comando y devuelve el stdout (salida de consola)
+        const resultado = execSync('node obt_token.js', { encoding: 'utf8', timeout: 90000 });
+        console.log(`DEBUG: Salida de node: ${resultado}`);
+        const link = resultado.trim();
+        return link.startsWith("http") ? link : null;
+    } catch (error) {
+        console.log(`DEBUG: Excepción en subprocess: ${error.message}`);
+        return null;
+    }
+}
 
-# 4. Verificación universal
-def esta_vivo(url):
-    try:
-        headers = {'User-Agent': USER_AGENT}
-        r = requests.get(url, headers=headers, timeout=8)
-        return r.status_code in [200, 403]
-    except:
-        return False
+// 4. Verificación universal
+async function esta_vivo(url) {
+    try {
+        const headers = { 'User-Agent': USER_AGENT };
+        const response = await axios.get(url, { headers, timeout: 8000 });
+        return [200, 403].includes(response.status);
+    } catch (error) {
+        // En axios, si da 403 lanza error, lo capturamos aquí
+        if (error.response && [200, 403].includes(error.response.status)) {
+            return true;
+        }
+        return false;
+    }
+}
 
-# 5. Motor global
-def actualizar():
-    with open("canales.json", "r", encoding="utf-8") as f:
-        datos = json.load(f)
+// 5. Motor global
+async function actualizar() {
+    const rawData = fs.readFileSync('canales.json', 'utf8');
+    let datos = JSON.parse(rawData);
+    let cambios = false;
 
-    cambios = False
+    for (let canal of datos) {
+        let nuevo_link = null;
 
-    for canal in datos:
-        # A. América TV (Puppeteer)
-        if canal["nombre"] == "América TV":
-            nuevo_link = obtener_token_america()
-            if nuevo_link and canal["stream_url"] != nuevo_link:
-                canal["stream_url"] = nuevo_link
-                cambios = True
-                print("✅ América TV actualizado.")
-        
-        # B. Latina (Lista maestra)
-        elif canal.get("group_title") == "":
-            nuevo_link = buscar_en_iptv_lista(canal["tvg_id"], canal["source"])
-            if nuevo_link and canal["stream_url"] != nuevo_link:
-                canal["stream_url"] = nuevo_link
-                cambios = True
-        
-        # C. Canales viejos (Scraper)
-        elif "source" in canal:
-            nuevo_link = extraer_link_de_fuente(canal["source"])
-            if nuevo_link and canal["stream_url"] != nuevo_link:
-                canal["stream_url"] = nuevo_link
-                cambios = True
+        // A. América TV (Puppeteer)
+        if (canal["nombre"] === "América TV") {
+            nuevo_link = obtener_token_america();
+            if (nuevo_link && canal["stream_url"] !== nuevo_link) {
+                canal["stream_url"] = nuevo_link;
+                cambios = true;
+                console.log("✅ América TV actualizado.");
+            }
+        }
+        // B. Latina (Lista maestra)
+        else if (canal["group_title"] === "") {
+            nuevo_link = await buscar_en_iptv_lista(canal["tvg_id"], canal["source"]);
+            if (nuevo_link && canal["stream_url"] !== nuevo_link) {
+                canal["stream_url"] = nuevo_link;
+                cambios = true;
+            }
+        }
+        // C. Canales viejos (Scraper)
+        else if (canal["source"]) {
+            nuevo_link = await extraer_link_de_fuente(canal["source"]);
+            if (nuevo_link && canal["stream_url"] !== nuevo_link) {
+                canal["stream_url"] = nuevo_link;
+                cambios = true;
+            }
+        }
 
-        # Verificación final
-        if esta_vivo(canal["stream_url"]):
-            print(f"✅ {canal['nombre']} OK.")
-        else:
-            print(f"❌ {canal['nombre']} está CAÍDO.")
+        // Verificación final
+        const vivo = await esta_vivo(canal["stream_url"]);
+        if (vivo) {
+            console.log(`✅ ${canal["nombre"]} OK.`);
+        } else {
+            console.log(`❌ ${canal["nombre"]} está CAÍDO.`);
+        }
+    }
 
-    if cambios:
-        with open("canales.json", "w", encoding="utf-8") as f:
-            json.dump(datos, f, indent=2, ensure_ascii=False)
-        print("🚀 JSON ACTUALIZADO.")
+    if (cambios) {
+        fs.writeFileSync('canales.json', JSON.stringify(datos, null, 2), 'utf8');
+        console.log("🚀 JSON ACTUALIZADO.");
+    }
+}
 
-if __name__ == "__main__":
-    actualizar()
+// Ejecución
+actualizar();
