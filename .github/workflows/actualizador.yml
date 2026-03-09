@@ -18,18 +18,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          # Esto ayuda a cachear las librerías para que sea más rápido
-          cache: 'npm'
+          # Se eliminó la línea de cache para evitar el error de 'lock file not found'
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          # Librerías necesarias para que Chrome/Puppeteer corra en Linux
-          sudo apt-get install -y libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2 libxss1
+          # Librerías necesarias para que Chrome/Puppeteer corra en Linux (incluyendo corrección para libasound2)
+          sudo apt-get install -y libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2t64 libxss1
+          # Instalación directa de librerías
           npm install puppeteer axios
 
       - name: Run Update Script
-        # OJO: Aunque el archivo termine en .py, si el código es JS, usamos node
+        # Ejecutamos con node aunque el archivo se llame .py
         run: node actualizar_lista.py
 
       - name: Commit and push changes
