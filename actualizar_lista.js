@@ -3,7 +3,14 @@ const axios = require('axios');
 
 const IPTV_ORG_URL = "https://iptv-org.github.io/iptv/countries/pe.m3u";
 
-// 1. Scraper para webs directas (Panamericana, TV Perú)
+// Función de verificación de salud (Ping)
+async function esta_vivo(url) {
+    try {
+        const response = await axios.head(url, { timeout: 5000 });
+        return response.status === 200 || response.status === 403;
+    } catch (e) { return false; }
+}
+
 async function extraer_link_generico(url_fuente) {
     try {
         const response = await axios.get(url_fuente, { timeout: 20000 });
@@ -12,7 +19,6 @@ async function extraer_link_generico(url_fuente) {
     } catch (e) { return null; }
 }
 
-// 2. Buscador para IPTV-ORG
 async function buscar_en_iptv_lista(tvg_id) {
     try {
         const response = await axios.get(IPTV_ORG_URL, { timeout: 20000 });
@@ -27,29 +33,29 @@ async function actualizar() {
     let cambios = false;
 
     for (let canal of datos) {
-        // SI NO TIENE SOURCE, NO TOCAMOS NADA
-        if (!canal.source) continue;
+        // 1. Actualización (solo si tiene source)
+        if (canal.source) {
+            let nuevo_link = (canal.source === IPTV_ORG_URL) ? 
+                             await buscar_en_iptv_lista(canal.tvg_id) : 
+                             await extraer_link_generico(canal.source);
 
-        let nuevo_link = null;
-
-        // Decidimos qué método usar según la URL de source
-        if (canal.source === IPTV_ORG_URL) {
-            nuevo_link = await buscar_en_iptv_lista(canal.tvg_id);
+            if (nuevo_link && canal.stream_url !== nuevo_link) {
+                canal.stream_url = nuevo_link;
+                cambios = true;
+                console.log(`✅ ${canal.nombre} actualizado.`);
+            }
         } else {
-            nuevo_link = await extraer_link_generico(canal.source);
+            console.log(`⏩ ${canal.nombre} (Proxy).`);
         }
 
-        // Si encontramos un link nuevo, actualizamos
-        if (nuevo_link && canal.stream_url !== nuevo_link) {
-            canal.stream_url = nuevo_link;
-            cambios = true;
-            console.log(`✅ ${canal.nombre} actualizado.`);
-        }
+        // 2. Verificación de salud (de todos los canales)
+        const vivo = await esta_vivo(canal.stream_url);
+        console.log(vivo ? `   └─ Estado: [OK]` : `   └─ Estado: [CAÍDO]`);
     }
 
     if (cambios) {
         fs.writeFileSync('canales.json', JSON.stringify(datos, null, 2), 'utf8');
-        console.log("🚀 JSON actualizado correctamente.");
+        console.log("🚀 JSON actualizado.");
     }
 }
 
