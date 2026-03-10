@@ -60,7 +60,8 @@
     "tvg_id": "Willax.pe",
     "tvg_logo": "https://i.imgur.com/WillaxLogo.png",
     "group_title": "Noticias",
-    "stream_url": ""
+    "source": "https://willax.pe/en-vivo",
+    "stream_url": "https://live2.eu-north-1b.cf.dmcdn.net/sec2(...)/live-720.m3u8"
   },
   {
     "nombre": "América TV",
