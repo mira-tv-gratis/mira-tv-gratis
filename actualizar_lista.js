@@ -12,7 +12,7 @@ const cliente = axios.create({
 });
 
 async function esta_vivo(url) {
-    if (!url || url === "") return true; // Los tokens se asumen vivos hasta que fallen en el proxy
+    if (!url || url === "") return false; // Si está vacío, devolvemos false para que sepa que no hay stream
     try {
         const response = await cliente.head(url);
         return response.status === 200 || response.status === 403;
@@ -22,7 +22,6 @@ async function esta_vivo(url) {
 async function extraer_de_github_web(url_fuente) {
     try {
         const response = await cliente.get(url_fuente);
-        // Regex mejorada para capturar URLs m3u8 en el HTML
         const match = response.data.match(/https?:\/\/[^\s"\'<>]+?\.m3u8[^\s"\'<>]*/i);
         return match ? match[0] : null;
     } catch (e) { return null; }
@@ -31,7 +30,6 @@ async function extraer_de_github_web(url_fuente) {
 async function buscar_en_iptv_org(tvg_id, lista_maestra) {
     if (!lista_maestra) return null;
     try {
-        // Buscamos el bloque que contiene el id y extraemos la URL de la línea siguiente
         const patron = new RegExp(`tvg-id="${tvg_id}".*?\\n(https?://.*?\\.m3u8.*)`, 'i');
         const match = lista_maestra.match(patron);
         return match ? match[1].trim() : null;
@@ -42,7 +40,6 @@ async function actualizar() {
     let datos = JSON.parse(fs.readFileSync('canales.json', 'utf8'));
     let cambios = false;
     
-    // Descargamos la lista IPTV una sola vez para todos los que la necesiten
     let lista_iptv_cache = null;
     if (datos.some(c => c.get_m3u8 === "iptv")) {
         console.log("📥 Descargando lista maestra de IPTV-ORG...");
@@ -55,37 +52,40 @@ async function actualizar() {
     for (let canal of datos) {
         console.log(`\n🔍 Procesando: ${canal.nombre} [Modo: ${canal.get_m3u8}]`);
 
-        let nueva_url = null;
-
-        // --- LÓGICA SEGÚN get_m3u8 ---
-        
-        if (canal.get_m3u8 === "token") {
-            // No hacemos nada, Rust/Puppeteer se encarga en tiempo real
-            console.log(`   └─ ✅ Saltando (Manejado por Token/Proxy).`);
-            continue; 
-        } 
-        
-        else if (canal.get_m3u8 === "github") {
-            // Buscamos el m3u8 en el código fuente de la web oficial (source)
-            nueva_url = await extraer_de_github_web(canal.source);
-        } 
-        
-        else if (canal.get_m3u8 === "iptv") {
-            // Buscamos por tvg_id en la lista de IPTV-ORG
-            nueva_url = await buscar_en_iptv_org(canal.tvg_id, lista_iptv_cache);
-        }
-
-        // --- APLICAR CAMBIOS ---
-        
-        if (nueva_url && canal.stream_url !== nueva_url) {
-            console.log(`   └─ 🆕 Nueva URL detectada: ${nueva_url.substring(0, 50)}...`);
-            canal.stream_url = nueva_url;
-            cambios = true;
+        // --- LÓGICA DE ACTUALIZACIÓN ---
+        if (canal.get_m3u8 === "github") {
+            const nueva_url = await extraer_de_github_web(canal.source);
+            if (nueva_url && canal.stream_url !== nueva_url) {
+                canal.stream_url = nueva_url;
+                cambios = true;
+                console.log(`   └─ 🆕 Nueva URL detectada.`);
+            }
+        } else if (canal.get_m3u8 === "iptv") {
+            const nueva_url = await buscar_en_iptv_org(canal.tvg_id, lista_iptv_cache);
+            if (nueva_url && canal.stream_url !== nueva_url) {
+                canal.stream_url = nueva_url;
+                cambios = true;
+                console.log(`   └─ 🆕 Nueva URL detectada.`);
+            }
         }
 
         // --- VERIFICACIÓN DE SALUD ---
-        const vivo = await esta_vivo(canal.stream_url);
-        console.log(`   └─ Estado: ${vivo ? "[OK]" : "[CAÍDO o REVISAR]"}`);
+        if (canal.get_m3u8 !== "token") {
+            const vivo = await esta_vivo(canal.stream_url);
+            if (!vivo) {
+                if (canal.stream_url !== "") {
+                    console.log(`   └─ ❌ ${canal.nombre} CAÍDO. Limpiando stream_url.`);
+                    canal.stream_url = "";
+                    cambios = true;
+                } else {
+                    console.log(`   └─ ⚠️ ${canal.nombre} SIN URL (Esperando próxima actualización).`);
+                }
+            } else {
+                console.log(`   └─ Estado: [OK]`);
+            }
+        } else {
+            console.log(`   └─ Estado: [MODO TOKEN - Sin verificar]`);
+        }
     }
 
     if (cambios) {
