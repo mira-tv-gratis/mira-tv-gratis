@@ -2,17 +2,21 @@ name: Actualizador Automatico
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
-  workflow_dispatch:
+    - cron: '0 */6 * * *' # Se ejecuta cada 6 horas
+  workflow_dispatch:      # Permite ejecutarlo manualmente desde el botón "Run workflow"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Permiso crucial para que el bot pueda escribir en tu repo
+    
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          # Esto asegura que traiga la última versión para evitar conflictos de git
+          fetch-depth: 0 
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -31,6 +35,14 @@ jobs:
         run: |
           git config --global user.name "Bot Mira TV"
           git config --global user.email "bot@mira-tv-gratis.com"
+          
+          # Solo agregamos el archivo si realmente hubo cambios
           git add canales.json
-          git commit -m "Actualizacion automatica de enlaces" || echo "No hay cambios para commitear"
-          git push || exit 0
+          
+          # El comando "git diff --quiet" verifica si hay cambios reales
+          if ! git diff --cached --quiet; then
+            git commit -m "🤖 Actualización automática de enlaces"
+            git push origin main
+          else
+            echo "No hay cambios detectados en canales.json"
+          fi
