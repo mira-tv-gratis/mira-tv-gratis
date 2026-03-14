@@ -5,7 +5,7 @@
     "tvg_logo": "https://i.imgur.com/7Yf3YfL.png",
     "group_title": "General",
     "source": "https://panamericana.pe/tvenvivo",
-    "get_m3u8":"github",
+    "get_m3u8": "github",
     "stream_url": "https://live-stream.iblups.com/live/cde7c1935927ca1cf540d70c835deb58aca3fd15.m3u8"
   },
   {
@@ -14,7 +14,7 @@
     "tvg_logo": "https://i.imgur.com/4aHrD2l.jpeg",
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "get_m3u8":"iptv",
+    "get_m3u8": "iptv",
     "stream_url": "https://cloudpro.servidoresdestream.com:8081/8010/index.m3u8"
   },
   {
@@ -23,7 +23,7 @@
     "tvg_logo": "https://i.imgur.com/7bGVFBa.png",
     "group_title": "Culture",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "get_m3u8":"iptv",
+    "get_m3u8": "iptv",
     "stream_url": "https://video2.lhdserver.es/asiritv/live.m3u8"
   },
   {
@@ -32,8 +32,8 @@
     "tvg_logo": "https://i.imgur.com/eUzYZfg.png",
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "get_m3u8":"iptv",
-    "stream_url": "https://d2qsan2ut81n2k.cloudfront.net/live/25046411-8673-4dec-8ae8-5b41984f34e1/ts:abr.m3u8"
+    "get_m3u8": "iptv",
+    "stream_url": ""
   },
   {
     "nombre": "Bethel TV",
@@ -41,7 +41,7 @@
     "tvg_logo": "https://i.imgur.com/zCVh765.png",
     "group_title": "Religious",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "get_m3u8":"iptv",
+    "get_m3u8": "iptv",
     "stream_url": "https://alfa.betheltv.tv/srt/3_abr/playlist.m3u8"
   },
   {
@@ -50,7 +50,7 @@
     "tvg_logo": "https://i.imgur.com/oNFOKFI.png",
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "get_m3u8":"iptv",
+    "get_m3u8": "iptv",
     "stream_url": "https://sc1.wasidata.com/Bhtv/index.fmp4.m3u8"
   },
   {
@@ -59,7 +59,7 @@
     "tvg_logo": "https://i.imgur.com/TVPeruLogo.png",
     "group_title": "General",
     "source": "https://www.tvperu.gob.pe/play",
-    "get_m3u8":"github",
+    "get_m3u8": "github",
     "stream_url": "https://cdnhd.iblups.com/hls/777b4d4cc0984575a7d14f6ee57dbcaf7.m3u8"
   },
   {
@@ -68,8 +68,8 @@
     "tvg_logo": "https://i.imgur.com/WillaxLogo.png",
     "group_title": "Noticias",
     "source": "https://willax.pe/en-vivo",
-    "get_m3u8":"token",
-    "stream_url": "" 
+    "get_m3u8": "token",
+    "stream_url": ""
   },
   {
     "nombre": "América TV",
@@ -77,7 +77,7 @@
     "tvg_logo": "https://i.imgur.com/AmericaLogo.png",
     "group_title": "General",
     "source": "https://tvgo.americatv.com.pe/envivo",
-    "get_m3u8":"token",
+    "get_m3u8": "token",
     "stream_url": ""
   },
   {
@@ -86,7 +86,7 @@
     "tvg_logo": "https://i.imgur.com/MOsWriY.png",
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "get_m3u8":"iptv",
+    "get_m3u8": "iptv",
     "stream_url": "https://redirector.rudo.video/hls-video/567ffde3fa319fadf3419efda25619456231dfea/latina/latina.smil/playlist.m3u8"
   },
   {
@@ -95,7 +95,7 @@
     "tvg_logo": "https://i.imgur.com/q0dAWyj.png",
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
-    "get_m3u8":"iptv",
+    "get_m3u8": "iptv",
     "stream_url": "https://redirector.rudo.video/hls-video/plus226/latina2/latina2.smil/playlist.m3u8"
   }
 ]
