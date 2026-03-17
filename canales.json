@@ -24,7 +24,7 @@
     "group_title": "Culture",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
     "get_m3u8": "iptv",
-    "stream_url": "https://video2.lhdserver.es/asiritv/live.m3u8"
+    "stream_url": ""
   },
   {
     "nombre": "ATV (720p)",
