@@ -30,10 +30,17 @@ async function extraer_de_github_web(url_fuente) {
 async function buscar_en_iptv_org(tvg_id, lista_maestra) {
     if (!lista_maestra) return null;
     try {
-        const patron = new RegExp(`tvg-id="${tvg_id}".*?\\n(https?://.*?\\.m3u8.*)`, 'i');
+        const patron = new RegExp(`tvg-id="${tvg_id}"[^]*?(https?://[^#\\s]+?\\.m3u8[^#\\s]*)`, 'i');
         const match = lista_maestra.match(patron);
-        return match ? match[1].trim() : null;
-    } catch (e) { return null; }
+        
+        if (match) {
+            return match[1].trim();
+        }
+        return null;
+    } catch (e) { 
+        console.log(`❌ Error buscando ID ${tvg_id}: ${e.message}`);
+        return null; 
+    }
 }
 
 async function actualizar() {
