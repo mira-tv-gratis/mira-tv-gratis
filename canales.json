@@ -4,8 +4,9 @@
     "tvg_id": "Panamericana.pe",
     "tvg_logo": "https://i.imgur.com/7Yf3YfL.png",
     "group_title": "General",
-    "source": "https://panamericana.pe/tvenvivo",
-    "get_m3u8": "github",
+    "source": "https://iblups.com/embed/panamericanape",
+    "referer_oficial": "https://panamericana.pe/tvenvivo",
+    "get_m3u8": "iblups",
     "stream_url": ""
   },
   {
