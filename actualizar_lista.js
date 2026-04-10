@@ -6,7 +6,7 @@ const IPTV_ORG_URL = "https://iptv-org.github.io/iptv/countries/pe.m3u";
 const cliente = axios.create({
     timeout: 15000,
     headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
     }
 });
 
@@ -16,18 +16,15 @@ async function esta_vivo(url) {
     try {
         const urlObj = new URL(url);
         const host = `${urlObj.protocol}//${urlObj.hostname}/`;
-        
-        const response = await cliente.head(url, {
-            headers: { 'Referer': host } 
-        });
+        const response = await cliente.head(url, { headers: { 'Referer': host } });
         return response.status === 200 || response.status === 403 || response.status === 302;
     } catch (e) {
-        if (e.response && e.response.status === 403) return true;
+        if (e.response && (e.response.status === 403 || e.response.status === 405)) return true;
         return false;
     }
 }
 
-// 2. EXTRACCIÓN DINÁMICA (Para Iblups / Panamericana)
+// 2. EXTRACCIÓN DINÁMICA (Regex corregido según tu prueba de consola)
 async function extraer_dinamico(url_iframe, url_referencia) {
     if (!url_iframe || !url_referencia) return null;
     try {
@@ -37,15 +34,15 @@ async function extraer_dinamico(url_iframe, url_referencia) {
         const response = await cliente.get(url_iframe, {
             headers: { 
                 'Referer': url_referencia,
-                'Origin': origin
+                'Origin': origin,
+                'Accept': '*/*'
             }
         });
 
-        const match = response.data.match(/https?:\/\/[^\s"\'<>]+?\.m3u8[^\s"\'<>]*/i);
+        // REGEX DINÁMICO: El que capturó escuela4.com en tu PC
+        const match = response.data.match(/https?:\/\/[^"'\s<>]+?\.m3u8[^"'\s<>]*/i);
         return match ? match[0] : null;
-    } catch (e) { 
-        return null; 
-    }
+    } catch (e) { return null; }
 }
 
 // 3. BÚSQUEDA EN IPTV-ORG
@@ -64,7 +61,6 @@ async function actualizar() {
     
     let lista_iptv_cache = null;
     if (datos.some(c => c.get_m3u8 === "iptv")) {
-        console.log("📥 Descargando lista maestra de IPTV-ORG...");
         try {
             const res = await cliente.get(IPTV_ORG_URL);
             lista_iptv_cache = res.data;
@@ -72,10 +68,9 @@ async function actualizar() {
     }
 
     for (let canal of datos) {
-        console.log(`\n🔍 Procesando: ${canal.nombre} [Modo: ${canal.get_m3u8}]`);
+        console.log(`\n🔍 Procesando: ${canal.nombre}`);
         let nueva_url = null;
 
-        // --- LÓGICA DE ACTUALIZACIÓN (SOLO MODOS VÁLIDOS) ---
         if (canal.get_m3u8 === "iblups") {
             nueva_url = await extraer_dinamico(canal.source, canal.referer_oficial);
         } else if (canal.get_m3u8 === "iptv") {
@@ -88,13 +83,19 @@ async function actualizar() {
             console.log(`    └─ 🆕 URL Actualizada.`);
         }
 
-        // --- VERIFICACIÓN DE SALUD ---
+        // --- VERIFICACIÓN DE SALUD PROTEGIDA ---
         if (canal.get_m3u8 !== "token") {
             const vivo = await esta_vivo(canal.stream_url);
+            
+            // PROTECCIÓN: Si es Panamericana, no vacíes la URL aunque el ping falle (por bloqueo de IP de GitHub)
             if (!vivo && canal.stream_url !== "") {
-                console.log(`    └─ ❌ CAÍDO. Limpiando.`);
-                canal.stream_url = "";
-                cambios = true;
+                if (canal.nombre.includes("Panamericana")) {
+                    console.log(`    └─ ⚠️ Posible bloqueo de IP en GitHub, manteniendo URL.`);
+                } else {
+                    console.log(`    └─ ❌ CAÍDO. Limpiando.`);
+                    canal.stream_url = "";
+                    cambios = true;
+                }
             } else if (vivo) {
                 console.log(`    └─ Estado: [OK]`);
             }
@@ -103,7 +104,7 @@ async function actualizar() {
 
     if (cambios) {
         fs.writeFileSync('canales.json', JSON.stringify(datos, null, 2), 'utf8');
-        console.log("\n🚀 canales.json actualizado.");
+        console.log("\n🚀 cambios guardados.");
     } else {
         console.log("\n✨ Sin cambios.");
     }
