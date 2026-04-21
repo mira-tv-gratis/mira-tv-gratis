@@ -16,7 +16,7 @@
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
     "get_m3u8": "iptv",
-    "stream_url": "https://cloudpro.servidoresdestream.com:8081/8010/index.m3u8"
+    "stream_url": ""
   },
   {
     "nombre": "AsiriTV (720p)",
