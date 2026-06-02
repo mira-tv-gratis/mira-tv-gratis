@@ -88,7 +88,7 @@
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
     "get_m3u8": "iptv",
-    "stream_url": ""
+    "stream_url": "https://redirector.rudo.video/hls-video/567ffde3fa319fadf3419efda25619456231dfea/latina/latina.smil/playlist.m3u8"
   },
   {
     "nombre": "Latina Clasicos",
@@ -97,6 +97,6 @@
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
     "get_m3u8": "iptv",
-    "stream_url": ""
+    "stream_url": "https://redirector.rudo.video/hls-video/plus226/latina2/latina2.smil/playlist.m3u8"
   }
 ]
