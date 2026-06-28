@@ -34,7 +34,7 @@
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
     "get_m3u8": "iptv",
-    "stream_url": ""
+    "stream_url": "http://bantel-cdn1.iptvperu.tv:1935/btnscrtn/atv.stream/playlist.m3u8"
   },
   {
     "nombre": "Bethel TV",
