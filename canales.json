@@ -52,7 +52,7 @@
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
     "get_m3u8": "iptv",
-    "stream_url": "https://sc1.wasidata.com/Bhtv/index.fmp4.m3u8"
+    "stream_url": ""
   },
   {
     "nombre": "TV Perú",
