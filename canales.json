@@ -25,7 +25,7 @@
     "group_title": "Culture",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
     "get_m3u8": "iptv",
-    "stream_url": ""
+    "stream_url": "https://video2.lhdserver.es/asiritv/live.m3u8"
   },
   {
     "nombre": "ATV (720p)",
@@ -61,7 +61,7 @@
     "group_title": "General",
     "source": "https://iptv-org.github.io/iptv/countries/pe.m3u",
     "get_m3u8": "iptv",
-    "stream_url": "http://181.119.93.83:8000/play/a25t/index.m3u8"
+    "stream_url": ""
   },
   {
     "nombre": "Willax TV",
